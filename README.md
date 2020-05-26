@@ -2,7 +2,9 @@
  Pytorch implementation of "Learning Lightweight Lane Detection CNNs by Self Attention Distillation (ICCV 2019)"
 
 ## Demo
+![DEMO2](./image/ENet-SAD_demo.gif)
 
+`gpu_runtime: 0.022898435592651367 FPS: 43` on RTX 2080 TI
 
 ## Train
 ### Requirements
