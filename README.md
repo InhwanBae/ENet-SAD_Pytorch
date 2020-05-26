@@ -19,7 +19,9 @@
 * [BDD100K](http://bdd-data.berkeley.edu/)
 
 ### Training
-
+```
+python train.py --exp_dir ./experiments/exp1
+```
 
 ## Performance
 
