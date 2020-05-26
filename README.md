@@ -21,6 +21,7 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
 * [CULane](https://xingangpan.github.io/projects/CULane.html)
 * [TuSimple](https://github.com/TuSimple/tusimple-benchmark/issues/3)
 * [BDD100K](http://bdd-data.berkeley.edu/)
+* [VPGNet](https://github.com/SeokjuLee/VPGNet/issues/50)
 
 ### Training
 ```
