@@ -4,6 +4,8 @@
 ## Demo
 ![DEMO2](./image/ENet-SAD_demo.gif)
 
+Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635.MP4
+
 `gpu_runtime: 0.022898435592651367 FPS: 43` on RTX 2080 TI
 
 ## Train
