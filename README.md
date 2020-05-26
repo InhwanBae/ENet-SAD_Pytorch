@@ -1,12 +1,19 @@
-# ENet-SAD_Pytorch
+# ENet-SAD Pytorch
  Pytorch implementation of "Learning Lightweight Lane Detection CNNs by Self Attention Distillation (ICCV 2019)"
 
 ## Demo
-![DEMO2](./image/ENet-SAD_demo.gif)
+#### Video
+![demo_gif](./image/ENet-SAD_demo.gif)
 
 Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635.MP4
 
 `gpu_runtime: 0.022898435592651367 FPS: 43` on RTX 2080 TI
+
+#### Comparison
+| Category | 40k episode (before SAD)                  | 60k episode (after SAD)                  |
+| -------- | ----------------------------------------- | ---------------------------------------- |
+| Image    | ![img1](./image/ENet_before_SAD.png)      | ![img2](./image/ENet_after_SAD.png)      |
+| Lane     | ![img3](./image/ENet_before_SAD_lane.png) | ![img4](./image/ENet_after_SAD_lane.png) |
 
 ## Train
 ### Requirements
