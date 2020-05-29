@@ -59,8 +59,30 @@ And then, start training with `train.py`
 python train.py --exp_dir ./experiments/exp1
 ```
 
-## Performance
+###### Optional
+If you write your own code using `ENet-SAD` model, you can init `ENet_SAD` with some parameters.
+```
+class ENet_SAD(nn.Module):
+    """
+    Generate the ENet-SAD model.
+    Keyword arguments:
+    - input_size (tuple): Size of the input image to segment.
+    - encoder_relu (bool, optional): When ``True`` ReLU is used as the
+    activation function in the encoder blocks/layers; otherwise, PReLU
+    is used. Default: False.
+    - decoder_relu (bool, optional): When ``True`` ReLU is used as the
+    activation function in the decoder blocks/layers; otherwise, PReLU
+    is used. Default: True.
+    - sad (bool, optional): When ``True``, SAD is added to model;
+    otherwise, SAD is removed. Default: False.
+    - weight_share (bool, optional): When ``True``, weights are shared
+    with encoder blocks (E2, E3 and E4); otherwise, encoders will each
+    learn with their own weights. Default: True.
+    """
+```
 
+## Performance
+Will be published soon.
 
 ## Acknowledgement
 This repo is built upon official implementation [ENet-SAD](https://github.com/cardwing/Codes-for-Lane-Detection) and based on [PyTorch-ENet](https://github.com/davidtvs/PyTorch-ENet), [SCNN_Pytorch](https://github.com/harryhan618/SCNN_Pytorch).
