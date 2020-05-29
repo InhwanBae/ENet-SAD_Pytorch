@@ -1,5 +1,7 @@
 # ENet-SAD Pytorch
- Pytorch implementation of "Learning Lightweight Lane Detection CNNs by Self Attention Distillation (ICCV 2019)"
+ Pytorch implementation of "[Learning Lightweight Lane Detection CNNs by Self Attention Distillation (ICCV 2019)](https://arxiv.org/abs/1908.00821)"
+
+<img src="./image/ENet-SAD_paper_model_architecture.png" alt="drawing" width="750"/>
 
 ## Demo
 #### Video
@@ -20,9 +22,6 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
 * pytorch
 * tensorflow (for tensorboard)
 * opencv
-* numpy
-* scipy
-* tqdm
 
 ### Datasets
 * [CULane](https://xingangpan.github.io/projects/CULane.html)
@@ -30,7 +29,32 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
 * [BDD100K](http://bdd-data.berkeley.edu/)
 * [VPGNet](https://github.com/SeokjuLee/VPGNet/issues/50)
 
+You need to change the correct dataset path in `./config.py`
+```
+Dataset_Path = dict(
+    CULane = "/workspace/CULANE_DATASET",
+    Tusimple = "/workspace/TUSIMPLE_DATASET",
+    BDD100K = "/workspace/BDD100K_DATASET",
+    VPGNet = "/workspace/VPGNet_DATASET"
+)
+```
+
 ### Training
+First, change some hyperparameters in `./experiments/*/cfg.json`
+```
+{
+  "model": "enet_sad",               <- "scnn" or "enet_sad"
+  "dataset": {
+    "dataset_name": "CULane",        <- "CULane" or "Tusimple"
+    "batch_size": 12,
+    "resize_shape": [800, 288]       <- [800, 288] with CULane, [640, 368] with Tusimple, and [640, 360] with BDD100K
+                                        This size is defined in the ENet-SAD paper, any size is fine if it is a multiple of 8.
+  },
+  ...
+}
+```
+
+And then, start training with `train.py`
 ```
 python train.py --exp_dir ./experiments/exp1
 ```
