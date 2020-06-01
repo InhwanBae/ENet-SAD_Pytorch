@@ -9,7 +9,9 @@
 
 Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635.MP4
 
-`gpu_runtime: 0.022898435592651367 FPS: 43` on RTX 2080 TI
+`gpu_runtime: 0.016296863555908203 FPS: 61`
+
+`total_runtime: 0.018099546432495117 FPS: 55` on RTX 2080 TI
 
 #### Comparison
 | Category | 40k episode (before SAD)                  | 60k episode (after SAD)                  |
