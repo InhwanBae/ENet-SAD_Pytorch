@@ -62,7 +62,7 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
   <details><summary>BDD100K dataset path (click to expand)</summary>
   
   ```
-  bdd100k_path
+  BDD100K_path
   ├─ images
   │  ├─ 10k
   │  └─ 100k
