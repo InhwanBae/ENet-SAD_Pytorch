@@ -146,16 +146,16 @@ Will continue to be updated.
 
 | Category     | ENet-SAD Pytorch | ENet-SAD paper |
 | ------------ | ---------------- | -------------- |
-| Normal       |                  | 90.1           |
-| Crowded      |                  | 68.8           |
-| Night        |                  | 66.0           |
-| No line      |                  | 41.6           |
-| Shadow       |                  | 65.9           |
-| Arrow        |                  | 84.0           |
-| Dazzle light |                  | 60.2           |
-| Curve        |                  | 65.7           |
-| Crossroad    |                  | 1995           |
-| Total        |                  | 70.8           | 
+| Normal       | 86.8             | 90.1           |
+| Crowded      | 65.3             | 68.8           |
+| Night        | 54.0             | 66.0           |
+| No line      | 37.3             | 41.6           |
+| Shadow       | 52.4             | 65.9           |
+| Arrow        | 78.2             | 84.0           |
+| Dazzle light | 51.0             | 60.2           |
+| Curve        | 58.6             | 65.7           |
+| Crossroad    | 2278             | 1995           |
+| Total        | 65.5             | 70.8           | 
 
 * BDD100K
 
