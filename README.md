@@ -19,6 +19,8 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
 | Image    | ![img1](./image/ENet_before_SAD.png)      | ![img2](./image/ENet_after_SAD.png)      |
 | Lane     | ![img3](./image/ENet_before_SAD_lane.png) | ![img4](./image/ENet_after_SAD_lane.png) |
 
+
+
 ## Train
 ### Requirements
 * pytorch
@@ -109,6 +111,8 @@ And then, start training with `train.py`
 python train.py --exp_dir ./experiments/exp1
 ```
 
+
+
 ###### Optional
 If you write your own code using `ENet-SAD` model, you can init `ENet_SAD` with some parameters.
 ```python
@@ -131,38 +135,42 @@ class ENet_SAD(nn.Module):
     """
 ```
 
+
+
 ## Performance
 Will continue to be updated.
 
 * TuSimple dataset
 
-| Category | ENet-SAD Pytorch | ENet-SAD paper |
-| -------- | ---------------- | -------------- |
-| Accuracy | 93.93%           | 96.64%         |
-| FP       | 0.2279           | 0.0602         |
-| FN       | 0.0838           | 0.0205         |
+  | Category | ENet-SAD Pytorch | ENet-SAD paper |
+  | -------- | ---------------- | -------------- |
+  | Accuracy | 93.93%           | 96.64%         |
+  | FP       | 0.2279           | 0.0602         |
+  | FN       | 0.0838           | 0.0205         |
+
 
 * CULane dataset (F1-measure, FP measure for crossroad)
 
-| Category     | ENet-SAD Pytorch | ENet-SAD paper |
-| ------------ | ---------------- | -------------- |
-| Normal       | 86.8             | 90.1           |
-| Crowded      | 65.3             | 68.8           |
-| Night        | 54.0             | 66.0           |
-| No line      | 37.3             | 41.6           |
-| Shadow       | 52.4             | 65.9           |
-| Arrow        | 78.2             | 84.0           |
-| Dazzle light | 51.0             | 60.2           |
-| Curve        | 58.6             | 65.7           |
-| Crossroad    | 2278             | 1995           |
-| Total        | 65.5             | 70.8           | 
+  | Category     | ENet-SAD Pytorch | ENet-SAD paper |
+  | ------------ | ---------------- | -------------- |
+  | Normal       | 86.8             | 90.1           |
+  | Crowded      | 65.3             | 68.8           |
+  | Night        | 54.0             | 66.0           |
+  | No line      | 37.3             | 41.6           |
+  | Shadow       | 52.4             | 65.9           |
+  | Arrow        | 78.2             | 84.0           |
+  | Dazzle light | 51.0             | 60.2           |
+  | Curve        | 58.6             | 65.7           |
+  | Crossroad    | 2278             | 1995           |
+  | Total        | 65.5             | 70.8           | 
 
 * BDD100K
 
-| Category | ENet-SAD Pytorch | ENet-SAD paper |
-| -------- | ---------------- | -------------- |
-| Accuracy | 37.09%           | 36.56%         |
-| IoU      | 15.14            | 16.02          |
+  | Category | ENet-SAD Pytorch | ENet-SAD paper |
+  | -------- | ---------------- | -------------- |
+  | Accuracy | 37.09%           | 36.56%         |
+  | IoU      | 15.14            | 16.02          |
+
 
 
 ## Acknowledgement
