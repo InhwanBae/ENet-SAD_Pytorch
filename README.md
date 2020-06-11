@@ -87,7 +87,39 @@ class ENet_SAD(nn.Module):
 ```
 
 ## Performance
-Will be published soon.
+Will continue to be updated.
+
+* TuSimple dataset
+
+| Category | ENet-SAD Pytorch | ENet-SAD paper |
+| -------- | ---------------- | -------------- |
+| Accuracy | 93.93%           | 96.64%         |
+| FP       | 0.2279           | 0.0602         |
+| FN       | 0.0838           | 0.0205         |
+
+* CULane dataset (F1-measure, FP measure for crossroad)
+
+| Category     | ENet-SAD Pytorch | ENet-SAD paper |
+| ------------ | ---------------- | -------------- |
+| Normal       |                  | 90.1           |
+| Crowded      |                  | 68.8           |
+| Night        |                  | 66.0           |
+| No line      |                  | 41.6           |
+| Shadow       |                  | 65.9           |
+| Arrow        |                  | 84.0           |
+| Dazzle light |                  | 60.2           |
+| Curve        |                  | 65.7           |
+| Crossroad    |                  | 1995           |
+| ------------ | ---------------- | -------------- |
+| Total        |                  | 70.8           | 
+
+* BDD100K
+
+| Category | ENet-SAD Pytorch | ENet-SAD paper |
+| -------- | ---------------- | -------------- |
+| Accuracy | 37.09%           | 36.56%         |
+| IoU      | 15.14            | 16.02          |
+
 
 ## Acknowledgement
 This repo is built upon official implementation [ENet-SAD](https://github.com/cardwing/Codes-for-Lane-Detection) and based on [PyTorch-ENet](https://github.com/davidtvs/PyTorch-ENet), [SCNN_Pytorch](https://github.com/harryhan618/SCNN_Pytorch).
