@@ -108,11 +108,13 @@ class mIoULoss(nn.Module):
     def forward(self, inputs, target_oneHot):
         """
         IoU Loss for individual examples
-        inputs - N x Classes x H x W
-        target_oneHot - N x Classes x H x W
+        inputs - N x {Classes or higher} x H x W
+        target_oneHot - N x {Classes or higher} x H x W
+        BG can be ignored
         """
 
         N = inputs.size()[0]
+        C = inputs.size()[1]
 
         # predicted probabilities for each pixel along channel
         inputs = F.softmax(inputs, dim=1)
@@ -120,18 +122,17 @@ class mIoULoss(nn.Module):
         # Numerator Product
         inter = inputs * target_oneHot
         # Sum over all pixels N x C x H x W => N x C
-        inter = inter.view(N, self.classes, -1).sum(2)
+        inter = inter.view(N, C, -1).sum(2)
 
         # Denominator
         union = inputs + target_oneHot - (inputs * target_oneHot)
         # Sum over all pixels N x C x H x W => N x C
-        union = union.view(N, self.classes, -1).sum(2)
+        union = union.view(N, C, -1).sum(2)
 
         loss = inter / union
 
         ## Return average loss over classes and batch
-        # return 1 - loss.mean()
-        return -(loss.mean() - 1.)
+        return -(loss[:, -self.classes].mean() - 1.)
 
 
 '''

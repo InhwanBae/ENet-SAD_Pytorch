@@ -3,6 +3,17 @@
 
 <img src="./image/ENet-SAD_paper_model_architecture.png" alt="drawing" width="750"/>
 
+
+
+## News
+* BDD100K Dataloader is released. now support all the three datasets (CULane, TuSimple, BDD100K)
+* ENET_SAD model has been updated to be more similar to the original implementation. (generated model is the same as before). 
+* Fixed issue with calculating IoU by taking softmax excluding BG.
+* Evaluation codes for CULane, TuSimple dataset have been updated.
+
+You can find the previous version [here](https://github.com/InhwanBae/ENet-SAD_Pytorch/tree/f4e07c6298cafffbfd33fbd006ebffeec99e7432)
+
+
 ## Demo
 #### Video
 ![demo_gif](./image/ENet-SAD_demo.gif)
@@ -78,8 +89,6 @@ Demo trained with CULane dataset & tested with \driver_193_90frame\06051123_0635
      └─ final_val
   ```
 </details>
-
-* [VPGNet](https://github.com/SeokjuLee/VPGNet/issues/50)
 
 You need to change the correct dataset path in `./config.py`
 ```python

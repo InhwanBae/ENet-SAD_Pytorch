@@ -68,7 +68,7 @@ val_loader = DataLoader(val_dataset, batch_size=8, collate_fn=val_dataset.collat
 if exp_cfg['model'] == "scnn":
     net = SCNN(resize_shape, pretrained=True)
 elif exp_cfg['model'] == "enet_sad":
-    net = ENet_SAD(resize_shape, sad=True)
+    net = ENet_SAD(resize_shape, sad=True, dataset=dataset_name)
 else:
     raise Exception("Model not match. 'model' in 'cfg.json' should be 'scnn' or 'enet_sad'.")
 
@@ -79,15 +79,6 @@ optimizer = optim.SGD(net.parameters(), **exp_cfg['optim'])
 lr_scheduler = PolyLR(optimizer, 0.9, **exp_cfg['lr_scheduler'])
 best_val_loss = 1e6
 
-"""
-def batch_processor(arg):
-    b_queue, data_loader = arg
-    while True:
-        if b_queue.empty():
-            sample = next(data_loader)
-            b_queue.put(sample)
-            b_queue.join()
-"""
 
 def train(epoch):
     print("Train Epoch: {}".format(epoch))
@@ -97,20 +88,7 @@ def train(epoch):
     train_loss_exist = 0
     progressbar = tqdm(range(len(train_loader)))
 
-    """
-    batch_queue = JoinableQueue()
-    data_loader = iter(train_loader)
-    p = Process(target=batch_processor, args=((batch_queue, data_loader),))
-    p.start()
-    """
-
     for batch_idx, sample in enumerate(train_loader):
-        """
-    for batch_idx in range(len(train_loader)):
-
-        sample = batch_queue.get()
-        batch_queue.task_done()
-        """
         img = sample['img'].to(device)
         segLabel = sample['segLabel'].to(device)
         exist = sample['exist'].to(device)
@@ -146,10 +124,6 @@ def train(epoch):
         tensorboard.scalar_summary(exp_name + "/train_loss_seg", train_loss_seg, iter_idx)
         tensorboard.scalar_summary(exp_name + "/train_loss_exist", train_loss_exist, iter_idx)
         tensorboard.scalar_summary(exp_name + "/learning_rate", lr, iter_idx)
-
-    """
-    p.join(10)
-    """
 
     progressbar.close()
     tensorboard.writer.flush()
@@ -258,7 +232,6 @@ def main():
 
     exp_cfg['MAX_EPOCHES'] = int(np.ceil(exp_cfg['lr_scheduler']['max_iter'] / len(train_loader)))
     for epoch in range(start_epoch, exp_cfg['MAX_EPOCHES']):
-        #val(epoch)
         train(epoch)
         if epoch % 1 == 0:
             print("\nValidation For Experiment: ", exp_dir)

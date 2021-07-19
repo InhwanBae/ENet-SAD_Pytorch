@@ -125,6 +125,90 @@ class Rotation(CustomTransform):
         self.theta = theta
 
 
+class HorizontalFlip(CustomTransform):
+    def __init__(self, probability, relabel=True):
+        self.probability = probability
+        self.relabel = relabel
+
+    def __call__(self, sample):
+        img = sample.get('img')
+        segLabel = sample.get('segLabel', None)
+
+        u = np.random.uniform()
+        if u < self.probability:
+            img = cv2.flip(img, 1)
+            if segLabel is not None:
+                segLabel = cv2.flip(segLabel, 1)
+                if self.relabel:
+                    segLabel = 5 - segLabel
+                    segLabel[segLabel == 5] = 0  # bg
+
+        _sample = sample.copy()
+        _sample['img'] = img
+        _sample['segLabel'] = segLabel
+        return _sample
+
+    def reset_probability(self, probability):
+        self.probability = probability
+
+
+class RandomCrop(CustomTransform):
+    def __init__(self, minWratio, maxWratio, minHratio=None, maxHratio=None):
+        self.minWratio = minWratio
+        self.maxWratio = maxWratio
+        self.minHratio = minHratio if minHratio is not None else minWratio
+        self.maxHratio = maxHratio if maxHratio is not None else maxWratio
+
+    def __call__(self, sample):
+        img = sample.get('img')
+        segLabel = sample.get('segLabel', None)
+
+        img_w = img.shape[1]
+        img_h = img.shape[0]
+
+        u = np.random.uniform()
+        v = np.random.uniform()
+
+        out_w = int(img_w * (self.minWratio + (self.maxWratio - self.minWratio) * u))
+        out_h = int(img_h * (self.minHratio + (self.maxHratio - self.minHratio) * v))
+
+        x = np.random.uniform()
+        y = np.random.uniform()
+
+        if out_w > img_w:
+            temp = out_w - img_w
+            img = cv2.copyMakeBorder(img, 0, 0, int(temp * x), int(temp * (1 - x)), cv2.BORDER_CONSTANT)
+            if segLabel is not None:
+                segLabel = cv2.copyMakeBorder(segLabel, 0, 0, int(temp * x), int(temp * (1 - x)), cv2.BORDER_CONSTANT)
+        else:
+            temp = img_w - out_w
+            img = img[0:img_h, int(temp * x):int(img_w - temp * (1 - x))]
+            if segLabel is not None:
+                segLabel = segLabel[0:img_h, int(temp * x):int(img_w - temp * (1 - x))]
+
+        if out_h > img_h:
+            temp = out_h - img_h
+            img = cv2.copyMakeBorder(img, int(temp * y), int(temp * (1 - y)), 0, 0, cv2.BORDER_CONSTANT)
+            if segLabel is not None:
+                segLabel = cv2.copyMakeBorder(segLabel, int(temp * y), int(temp * (1 - y)), 0, 0, cv2.BORDER_CONSTANT)
+        else:
+            temp = img_h - out_h
+            img = img[int(temp * y):int(img_h - temp * (1 - y)), 0:out_w]
+            if segLabel is not None:
+                segLabel = segLabel[int(temp * y):int(img_h - temp * (1 - y)), 0:out_w]
+
+        _sample = sample.copy()
+        _sample['img'] = img
+        _sample['segLabel'] = segLabel
+        return _sample
+
+    def reset_ratio(self, minWratio, maxWratio, minHratio=None, maxHratio=None):
+        self.minWratio = minWratio
+        self.maxWratio = maxWratio
+        self.minHratio = minHratio if minHratio is not None else minWratio
+        self.maxHratio = maxHratio if maxHratio is not None else maxWratio
+
+
 class Normalize(CustomTransform):
     def __init__(self, mean, std):
         self.transform = Normalize_th(mean, std)

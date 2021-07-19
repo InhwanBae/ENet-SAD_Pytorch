@@ -456,170 +456,6 @@ class UpsamplingBottleneck(nn.Module):
         return self.out_activation(out)
 
 
-class ENet(nn.Module):
-    """Generate the ENet model.
-    Keyword arguments:
-    - num_classes (int): the number of classes to segment.
-    - encoder_relu (bool, optional): When ``True`` ReLU is used as the
-    activation function in the encoder blocks/layers; otherwise, PReLU
-    is used. Default: False.
-    - decoder_relu (bool, optional): When ``True`` ReLU is used as the
-    activation function in the decoder blocks/layers; otherwise, PReLU
-    is used. Default: True.
-    """
-
-    def __init__(self, num_classes, encoder_relu=False, decoder_relu=True):
-        super().__init__()
-
-        self.initial_block = InitialBlock(3, 16, relu=encoder_relu)
-
-        # Stage 1 - Encoder
-        self.downsample1_0 = DownsamplingBottleneck(
-            16,
-            64,
-            return_indices=True,
-            dropout_prob=0.01,
-            relu=encoder_relu)
-        self.regular1_1 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_2 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_3 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_4 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-
-        # Stage 2 - Encoder
-        self.downsample2_0 = DownsamplingBottleneck(
-            64,
-            128,
-            return_indices=True,
-            dropout_prob=0.1,
-            relu=encoder_relu)
-        self.regular2_1 = RegularBottleneck(
-            128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_2 = RegularBottleneck(
-            128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric2_3 = RegularBottleneck(
-            128,
-            kernel_size=5,
-            padding=2,
-            asymmetric=True,
-            dropout_prob=0.1,
-            relu=encoder_relu)
-        self.dilated2_4 = RegularBottleneck(
-            128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu)
-        self.regular2_5 = RegularBottleneck(
-            128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_6 = RegularBottleneck(
-            128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric2_7 = RegularBottleneck(
-            128,
-            kernel_size=5,
-            asymmetric=True,
-            padding=2,
-            dropout_prob=0.1,
-            relu=encoder_relu)
-        self.dilated2_8 = RegularBottleneck(
-            128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu)
-
-        # Stage 3 - Encoder
-        self.regular3_0 = RegularBottleneck(
-            128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated3_1 = RegularBottleneck(
-            128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric3_2 = RegularBottleneck(
-            128,
-            kernel_size=5,
-            padding=2,
-            asymmetric=True,
-            dropout_prob=0.1,
-            relu=encoder_relu)
-        self.dilated3_3 = RegularBottleneck(
-            128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu)
-        self.regular3_4 = RegularBottleneck(
-            128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated3_5 = RegularBottleneck(
-            128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric3_6 = RegularBottleneck(
-            128,
-            kernel_size=5,
-            asymmetric=True,
-            padding=2,
-            dropout_prob=0.1,
-            relu=encoder_relu)
-        self.dilated3_7 = RegularBottleneck(
-            128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu)
-
-        # Stage 4 - Decoder
-        self.upsample4_0 = UpsamplingBottleneck(
-            128, 64, dropout_prob=0.1, relu=decoder_relu)
-        self.regular4_1 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.1, relu=decoder_relu)
-        self.regular4_2 = RegularBottleneck(
-            64, padding=1, dropout_prob=0.1, relu=decoder_relu)
-
-        # Stage 5 - Decoder
-        self.upsample5_0 = UpsamplingBottleneck(
-            64, 16, dropout_prob=0.1, relu=decoder_relu)
-        self.regular5_1 = RegularBottleneck(
-            16, padding=1, dropout_prob=0.1, relu=decoder_relu)
-        self.transposed_conv = nn.ConvTranspose2d(
-            16,
-            num_classes,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=False)
-
-    def forward(self, x):
-        # Initial block
-        input_size = x.size()
-        x = self.initial_block(x)
-
-        # Stage 1 - Encoder
-        stage1_input_size = x.size()
-        x, max_indices1_0 = self.downsample1_0(x)
-        x = self.regular1_1(x)
-        x = self.regular1_2(x)
-        x = self.regular1_3(x)
-        x = self.regular1_4(x)
-
-        # Stage 2 - Encoder
-        stage2_input_size = x.size()
-        x, max_indices2_0 = self.downsample2_0(x)
-        x = self.regular2_1(x)
-        x = self.dilated2_2(x)
-        x = self.asymmetric2_3(x)
-        x = self.dilated2_4(x)
-        x = self.regular2_5(x)
-        x = self.dilated2_6(x)
-        x = self.asymmetric2_7(x)
-        x = self.dilated2_8(x)
-
-        # Stage 3 - Encoder
-        x = self.regular3_0(x)
-        x = self.dilated3_1(x)
-        x = self.asymmetric3_2(x)
-        x = self.dilated3_3(x)
-        x = self.regular3_4(x)
-        x = self.dilated3_5(x)
-        x = self.asymmetric3_6(x)
-        x = self.dilated3_7(x)
-
-        # Stage 4 - Decoder
-        x = self.upsample4_0(x, max_indices2_0, output_size=stage2_input_size)
-        x = self.regular4_1(x)
-        x = self.regular4_2(x)
-
-        # Stage 5 - Decoder
-        x = self.upsample5_0(x, max_indices1_0, output_size=stage1_input_size)
-        x = self.regular5_1(x)
-        x = self.transposed_conv(x, output_size=input_size)
-
-        return x
-
-
 class SpatialSoftmax(nn.Module):
     def __init__(self, temperature=1, device='cpu'):
         super(SpatialSoftmax, self).__init__()
@@ -650,16 +486,13 @@ class ENet_SAD(nn.Module):
     . If False, SAD is removed.
     """
 
-    def __init__(self, input_size, pretrained=True, sad=False, encoder_relu=False, decoder_relu=True, weight_share=True):
+    def __init__(self, input_size, sad=False, encoder_relu=False, decoder_relu=True, weight_share=True, dataset='CULane'):
         super().__init__()
 
         # Init parameter
         input_w, input_h = input_size
         self.fc_input_feature = 5 * int(input_w / 16) * int(input_h / 16)
-
-        self.num_classes = 5
-        self.pretrained = pretrained
-
+        self.num_classes = 5 if dataset != 'BDD100K' else 1
         self.scale_background = 0.4
 
         # Loss scale factor for ENet w/o SAD
@@ -673,75 +506,53 @@ class ENet_SAD(nn.Module):
         self.scale_sad_distill = 0.1
 
         # Loss function
-        self.ce_loss = nn.CrossEntropyLoss(weight=torch.tensor([self.scale_background, 1, 1, 1, 1]))
-        self.bce_loss = nn.BCELoss()
-        self.iou_loss = mIoULoss(n_classes=4)
+        self.dataset = dataset
+        if dataset != 'BDD100K':
+            self.ce_loss = nn.CrossEntropyLoss(weight=torch.tensor([self.scale_background, 1, 1, 1, 1]))
+            self.bce_loss = nn.BCELoss()
+            self.iou_loss = mIoULoss(n_classes=4)
+        else:
+            self.ce_loss = nn.BCEWithLogitsLoss()
+            self.bce_loss = nn.BCELoss()
+            self.iou_loss = mIoULoss(n_classes=1)
+
+        # Encoder generator
+        def get_encoder_block(n=2):
+            seq = nn.Sequential()
+            seq.add_module('regular%d_1' % n, RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('dilated%d_2' % n, RegularBottleneck(128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('asymmetric%d_3' % n, RegularBottleneck(128, kernel_size=5, padding=2, asymmetric=True, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('dilated%d_4' % n, RegularBottleneck(128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('regular%d_5' % n, RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('dilated%d_6' % n, RegularBottleneck(128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('asymmetric%d_7' % n, RegularBottleneck(128, kernel_size=5, asymmetric=True, padding=2, dropout_prob=0.1, relu=encoder_relu))
+            seq.add_module('dilated%d_8' % n, RegularBottleneck(128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu))
+            return seq
 
         # Stage 0 - Initial block
         self.initial_block = InitialBlock(3, 16, relu=encoder_relu)
         self.sad = sad
 
         # Stage 1 - Encoder (E1)
-        self.downsample1_0 = DownsamplingBottleneck(16, 64, return_indices=True, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_1 = RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_2 = RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_3 = RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu)
-        self.regular1_4 = RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu)
+        self.downsample1 = DownsamplingBottleneck(16, 64, return_indices=True, dropout_prob=0.01, relu=encoder_relu)
+        self.encoder1 = nn.Sequential()
+        self.encoder1.add_module('regular1_1', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+        self.encoder1.add_module('regular1_2', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+        self.encoder1.add_module('regular1_3', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+        self.encoder1.add_module('regular1_4', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
 
         # Shared Encoder (E2~E4)
         # Stage 2 - Encoder (E2)
-        self.downsample2_0 = DownsamplingBottleneck(64, 128, return_indices=True, dropout_prob=0.1, relu=encoder_relu)
-        self.regular2_1 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_2 = RegularBottleneck(128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric2_3 = RegularBottleneck(128, kernel_size=5, padding=2, asymmetric=True, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_4 = RegularBottleneck(128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu)
-        self.regular2_5 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_6 = RegularBottleneck(128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu)
-        self.asymmetric2_7 = RegularBottleneck(128, kernel_size=5, asymmetric=True, padding=2, dropout_prob=0.1, relu=encoder_relu)
-        self.dilated2_8 = RegularBottleneck(128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu)
+        self.downsample2 = DownsamplingBottleneck(64, 128, return_indices=True, dropout_prob=0.1, relu=encoder_relu)
+        self.encoder2 = get_encoder_block(n=2)
 
         # Stage 3 - Encoder (E3)
-        if weight_share:
-            self.regular3_0 = self.regular2_1
-            self.dilated3_1 = self.dilated2_2
-            self.asymmetric3_2 = self.asymmetric2_3
-            self.dilated3_3 = self.dilated2_4
-            self.regular3_4 = self.regular2_5
-            self.dilated3_5 = self.dilated2_6
-            self.asymmetric3_6 = self.asymmetric2_7
-            self.dilated3_7 = self.dilated2_8
-        else:
-            self.regular3_0 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated3_1 = RegularBottleneck(128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu)
-            self.asymmetric3_2 = RegularBottleneck(128, kernel_size=5, padding=2, asymmetric=True, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated3_3 = RegularBottleneck(128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu)
-            self.regular3_4 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated3_5 = RegularBottleneck(128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu)
-            self.asymmetric3_6 = RegularBottleneck(128, kernel_size=5, asymmetric=True, padding=2, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated3_7 = RegularBottleneck(128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu)
+        self.encoder3 = self.encoder2 if weight_share else get_encoder_block(3)
 
         # Stage 4 - Encoder (E4)
-        if weight_share:
-            self.regular4_0 = self.regular2_1
-            self.dilated4_1 = self.dilated2_2
-            self.asymmetric4_2 = self.asymmetric2_3
-            self.dilated4_3 = self.dilated2_4
-            self.regular4_4 = self.regular2_5
-            self.dilated4_5 = self.dilated2_6
-            self.asymmetric4_6 = self.asymmetric2_7
-            self.dilated4_7 = self.dilated2_8
-        else:
-            self.regular4_0 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated4_1 = RegularBottleneck(128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu)
-            self.asymmetric4_2 = RegularBottleneck(128, kernel_size=5, padding=2, asymmetric=True, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated4_3 = RegularBottleneck(128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu)
-            self.regular4_4 = RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated4_5 = RegularBottleneck(128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu)
-            self.asymmetric4_6 = RegularBottleneck(128, kernel_size=5, asymmetric=True, padding=2, dropout_prob=0.1, relu=encoder_relu)
-            self.dilated4_7 = RegularBottleneck(128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu)
+        self.encoder4 = self.encoder2 if weight_share else get_encoder_block(4)
 
         # Stage 5 - Decoder (D1)
-        # self.upsample4_0 = UpsamplingBottleneck(128, 64, dropout_prob=0.1, relu=decoder_relu)
         self.upsample4_0 = UpsamplingBottleneck(256, 64, dropout_prob=0.1, relu=decoder_relu)
         self.regular4_1 = RegularBottleneck(64, padding=1, dropout_prob=0.1, relu=decoder_relu)
         self.regular4_2 = RegularBottleneck(64, padding=1, dropout_prob=0.1, relu=decoder_relu)
@@ -757,17 +568,13 @@ class ENet_SAD(nn.Module):
             self.at_gen_l2_loss = nn.MSELoss(reduction='mean')
 
         # Lane exist (P1)
-        self.layer3 = nn.Sequential(
-            nn.Conv2d(128, 5, 1),
-            nn.Softmax(dim=1),
-            nn.AvgPool2d(2, 2),
-        )
-        self.fc = nn.Sequential(
-            nn.Linear(self.fc_input_feature, 128),
-            nn.ReLU(),
-            nn.Linear(128, 4),
-            nn.Sigmoid()
-        )
+        self.exist = nn.Sequential(nn.Conv2d(128, 5, 1),
+                                   nn.Softmax(dim=1),
+                                   nn.AvgPool2d(2, 2),)
+        self.fc = nn.Sequential(nn.Linear(self.fc_input_feature, 128),
+                                nn.ReLU(),
+                                nn.Linear(128, 4),
+                                nn.Sigmoid(),)
 
     def at_gen(self, x1, x2):
         """
@@ -779,15 +586,15 @@ class ENet_SAD(nn.Module):
         sps = SpatialSoftmax(device=x1.device)
 
         if x1.size() != x2.size():
-            x1 = torch.sum(x1 * x1, dim=1)
+            x1 = x1.pow(2).sum(dim=1)
             x1 = sps(x1)
-            x2 = torch.sum(x2 * x2, dim=1, keepdim=True)
+            x2 = x2.pow(2).sum(dim=1, keepdim=True)
             x2 = torch.squeeze(self.at_gen_upsample(x2), dim=1)
             x2 = sps(x2)
         else:
-            x1 = torch.sum(x1 * x1, dim=1)
+            x1 = x1.pow(2).sum(dim=1)
             x1 = sps(x1)
-            x2 = torch.sum(x2 * x2, dim=1)
+            x2 = x2.pow(2).sum(dim=1)
             x2 = sps(x2)
 
         loss = self.at_gen_l2_loss(x1, x2)
@@ -801,49 +608,23 @@ class ENet_SAD(nn.Module):
         # AT-GEN after each E2, E3, E4
         # Stage 1 - Encoder (E1)
         stage1_input_size = x_0.size()
-        x, max_indices1_0 = self.downsample1_0(x_0)
-        x = self.regular1_1(x)
-        x = self.regular1_2(x)
-        x = self.regular1_3(x)
-        x_1 = self.regular1_4(x)
-        # if self.sad:
-        #     loss_1 = self.at_gen(x_0, x_1)
+        x, max_indices1 = self.downsample1(x_0)
+        x_1 = self.encoder1(x)
 
         # Stage 2 - Encoder (E2)
         stage2_input_size = x_1.size()
-        x, max_indices2_0 = self.downsample2_0(x_1)
-        x = self.regular2_1(x)
-        x = self.dilated2_2(x)
-        x = self.asymmetric2_3(x)
-        x = self.dilated2_4(x)
-        x = self.regular2_5(x)
-        x = self.dilated2_6(x)
-        x = self.asymmetric2_7(x)
-        x_2 = self.dilated2_8(x)
+        x, max_indices2 = self.downsample2(x_1)
+        x_2 = self.encoder2(x)
         if self.sad:
             loss_2 = self.at_gen(x_1, x_2)
 
         # Stage 3 - Encoder (E3)
-        x = self.regular3_0(x_2)
-        x = self.dilated3_1(x)
-        x = self.asymmetric3_2(x)
-        x = self.dilated3_3(x)
-        x = self.regular3_4(x)
-        x = self.dilated3_5(x)
-        x = self.asymmetric3_6(x)
-        x_3 = self.dilated3_7(x)
+        x_3 = self.encoder3(x_2)
         if self.sad:
             loss_3 = self.at_gen(x_2, x_3)
 
         # Stage 4 - Encoder (E4)
-        x = self.regular3_0(x_3)
-        x = self.dilated3_1(x)
-        x = self.asymmetric3_2(x)
-        x = self.dilated3_3(x)
-        x = self.regular3_4(x)
-        x = self.dilated3_5(x)
-        x = self.asymmetric3_6(x)
-        x_4 = self.dilated3_7(x)
+        x_4 = self.encoder4(x_3)
         if self.sad:
             loss_4 = self.at_gen(x_3, x_4)
 
@@ -851,17 +632,17 @@ class ENet_SAD(nn.Module):
         x_34 = torch.cat((x_3, x_4), dim=1)
 
         # Stage 4 - Decoder (D1)
-        x = self.upsample4_0(x_34, max_indices2_0, output_size=stage2_input_size)
+        x = self.upsample4_0(x_34, max_indices2, output_size=stage2_input_size)
         x = self.regular4_1(x)
         x = self.regular4_2(x)
 
         # Stage 5 - Decoder (D2)
-        x = self.upsample5_0(x, max_indices1_0, output_size=stage1_input_size)
+        x = self.upsample5_0(x, max_indices1, output_size=stage1_input_size)
         x = self.regular5_1(x)
         seg_pred = self.transposed_conv(x, output_size=input_size)
 
         # lane exist
-        y = self.layer3(x_4)
+        y = self.exist(x_4)
         y = y.view(-1, self.fc_input_feature)
         exist_pred = self.fc(y)
 
@@ -869,15 +650,20 @@ class ENet_SAD(nn.Module):
         if seg_gt is not None and exist_gt is not None:
             # L = L_seg + a * L_iou + b * L_exist + c * L_distill
             if self.sad:
-                loss_seg = self.ce_loss(seg_pred, seg_gt)
-                seg_gt_onehot = to_one_hot(seg_gt, 5)
-                loss_iou = self.iou_loss(seg_pred[:, 1:self.num_classes, :, :], seg_gt_onehot[:, 1:self.num_classes, :, :])
+                if self.dataset != 'BDD100K':
+                    loss_seg = self.ce_loss(seg_pred, seg_gt)
+                    seg_gt_onehot = to_one_hot(seg_gt, 5)
+                else:
+                    loss_seg = self.ce_loss(seg_pred.squeeze(dim=1), seg_gt.float())
+                    seg_gt_onehot = seg_gt.unsqueeze(dim=1)
+
+                loss_iou = self.iou_loss(seg_pred, seg_gt_onehot)
                 loss_exist = self.bce_loss(exist_pred, exist_gt)
-                loss_distill = loss_2 + loss_3 + loss_4
                 loss = loss_seg * self.scale_sad_seg + loss_iou * self.scale_sad_iou + loss_exist * self.scale_sad_exist
 
                 # Add SAD loss after 40K episodes
                 if sad_loss:
+                    loss_distill = loss_2 + loss_3 + loss_4
                     loss += loss_distill * self.scale_sad_distill
 
             else:
@@ -897,7 +683,7 @@ if __name__ == '__main__':
     tensor = torch.ones((8, 3, 288, 800)).cuda()
     seg_gt = torch.zeros((8, 288, 800)).long().cuda()
     exist_gt = torch.ones((8, 4)).cuda()
-    enet_sad = ENet_SAD((800, 288), sad=True)
+    enet_sad = ENet_SAD((800, 288), sad=True, dataset='BDD100K')
     enet_sad.cuda()
     enet_sad.train(mode=True)
     result = enet_sad(tensor, seg_gt, exist_gt, sad_loss=True)
