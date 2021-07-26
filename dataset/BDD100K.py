@@ -43,6 +43,8 @@ class BDD100K(Dataset):
                 line = line.strip().replace("/val_img/", "/images/100k/", 1)
                 l = line.split(" ")
                 self.img_list.append(os.path.join(self.data_dir_path, l[0][1:]))  # l[0][1:]  get rid of the first '/' so as for os.path.join
+                self.segLabel_list.append(os.path.join(self.data_dir_path, l[1][1:]))
+                self.exist_list.append([int(x) for x in l[2:]])
 
     def __getitem__(self, idx):
         img = cv2.imread(self.img_list[idx])

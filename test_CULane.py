@@ -63,7 +63,7 @@ test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=test_dataset.co
 if exp_cfg['model'] == "scnn":
     net = SCNN(input_size=resize_shape, pretrained=False)
 elif exp_cfg['model'] == "enet_sad":
-    net = ENet_SAD(resize_shape, sad=False)
+    net = ENet_SAD(resize_shape, sad=False, dataset=dataset_name)
 else:
     raise Exception("Model not match. 'model' in 'cfg.json' should be 'scnn' or 'enet_sad'.")
 
